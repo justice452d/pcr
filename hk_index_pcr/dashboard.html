@@ -1,0 +1,180 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>恒指 · 恒科 OI-PCR</title>
+<style>
+:root{font-family:Arial,"Microsoft Yahei",sans-serif;color:#e8eef7;background:#0b1118}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1400px;margin:auto;padding:20px}h1{font-size:30px;margin:0 0 5px}.sub{color:#93a4bc;font-size:14px;margin-bottom:20px}.toolbar,.cards,.grid{display:grid;gap:13px}.toolbar{grid-template-columns:repeat(3,minmax(100px,1fr)) 2fr;align-items:end}.cards{grid-template-columns:repeat(4,1fr);margin:16px 0}.grid{grid-template-columns:1.2fr .8fr}.panel,.card{background:#111b27;border:1px solid #223247;border-radius:16px;padding:18px}.card .label{color:#94a9c4;font-size:13px}.card .value{font-size:23px;font-weight:700;margin-top:6px}label{color:#aabbd2;font-size:13px}select,input,button,textarea{font:inherit;border-radius:9px;border:1px solid #2c4058;background:#0e1a28;color:#eaf1fc;padding:9px}select,input{display:block;width:100%;margin-top:5px}button{cursor:pointer;background:#215385;border:0}button:hover{background:#3472c3}.buttons{display:flex;gap:8px;align-items:end}.buttons button{width:100%}svg{width:100%;height:390px;overflow:visible;cursor:crosshair}.caption{color:#a9b7ca;font-size:13px;line-height:1.6}.notice{padding:12px;background:#10243b;border:1px solid #183654;border-radius:12px;color:#afd2ff;margin:15px 0;font-size:13px}.warn{background:#49382b}.panel h2{font-size:17px;margin:0 0 12px}.pill{color:#93b5ea}details{margin-top:16px}summary{cursor:pointer}textarea{display:block;width:100%;height:100px;margin:8px 0;font-size:12px}.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:7px;border-bottom:1px solid #35445b;text-align:right}td:first-child,th:first-child{text-align:left}.timeline{display:block;margin:12px 0;color:#aabbd2}.timeline input{width:100%;accent-color:#66b5ff;cursor:pointer}#hover{position:fixed;z-index:10;pointer-events:none;background:#08121f;color:#edf4ff;border:1px solid #38516e;border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.65;box-shadow:0 9px 30px #0008;min-width:185px}#hover[hidden]{display:none}.marketnav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.marketnav a{display:inline-block;text-decoration:none;background:#122338;color:#cfe4ff;border:1px solid #2c4058;border-radius:10px;padding:8px 12px;font-size:13px}.marketnav a.active{background:#215385;border-color:#4d96ce;color:#fff}@media(max-width:850px){.toolbar,.cards,.grid{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}}@media(max-width:550px){.toolbar,.cards{grid-template-columns:1fr 1fr}.buttons{grid-column:span 2}.wrap{padding:14px}} 
+</style><div class="wrap"><div class="marketnav"><a href="/cffex/io">沪深300 IO</a><a href="/shfe">沪金 AU</a><a href="/shfe/silver">沪银 AG</a><a href="/shfe/copper">沪铜 CU</a><a href="/shfe/oil">原油 SC</a><a class="active" href="/hk">恒指 / 恒科</a></div><h1>恒指 / 恒科 · 期权持仓 PCR <small style="font-size:13px;color:#62b5ff">整合版 v14</small></h1><div class="sub">港交所月度及长期指数期权 · Put OI ÷ Call OI · BB(20, 2) · 日报收盘后可用</div>
+<div class="toolbar"><label>指数<select id="symbol"><option value="HTI">恒生科技 HTI</option><option value="HSI">恒生指数 HSI</option></select></label><label>观察口径<select id="mode"><option value="all">全部到期月份</option><option value="front">仅近月（对照）</option></select></label><label>显示<select id="range"><option value="30">30 个交易日</option><option value="60" selected>60 个交易日</option><option value="120">120 个交易日</option><option value="260">260 个交易日</option><option value="99999">全部</option></select></label><div class="buttons"><button id="refresh">更新图表</button><button id="backfill">重试自动补齐</button></div></div><label class="timeline">拖动查看历史：<span id="viewDates">—</span><input id="timeline" type="range" min="0" max="0" value="0"></label>
+<div id="status" class="notice">正在读取数据…</div><div class="cards"><div class="card"><div class="label">最新 OI-PCR</div><div class="value" id="pcr">—</div></div><div class="card"><div class="label">20 日均值 / 下轨</div><div class="value" id="bb">—</div></div><div class="card"><div class="label">Put OI / Call OI</div><div class="value" id="oi">—</div></div><div class="card"><div class="label">数据日期 / 近月</div><div class="value" id="day">—</div></div></div>
+<div class="grid"><div class="panel"><h2>PCR <span class="pill">蓝</span> · 均值 <span style="color:#e8b966">黄</span> · 上下轨 <span style="color:#8296ae">灰</span></h2><svg id="pcrChart" viewBox="0 0 640 360" preserveAspectRatio="none"></svg></div><div class="panel"><h2>PCR 过去五年历史百分位 <span class="pill">蓝</span></h2><svg id="percentileChart" viewBox="0 0 640 360" preserveAspectRatio="none"></svg><div id="percentileNote" class="caption"></div></div></div>
+<div class="notice" id="rule">启动后自动检查历史日报。默认包含全部到期月份，包括临近到期的近月；当日信号最早在下一交易日执行。</div>
+<details class="panel"><summary>手动补充港交所日报</summary><p class="caption">自动获取失败时，可粘贴官方日报页面全文（包含所有到期月份及 MARKET TOTAL）。逐月 OI 加总须与报告总数一致才会写入。</p><div class="form"><label>日报日期<input id="importDate" type="date"></label><label>日报品种<select id="importSymbol"><option value="HTI">HTI</option><option value="HSI">HSI</option></select></label></div><textarea id="reportText" placeholder="粘贴恒指或恒科 OPTIONS DAILY MARKET REPORT 的页面文本/HTML"></textarea><button id="import">核对并导入</button></details>
+<div class="panel" style="margin-top:16px"><h2>最近观测值</h2><table><thead><tr><th>日期</th><th>全部月份 PCR</th><th>近月 PCR</th><th>全部月份百分位</th><th>近月百分位</th></tr></thead><tbody id="rows"></tbody></table></div><p class="caption">左侧 PCR、20 日均值及上下轨始终使用所选的同一持仓口径；默认包含所有到期月份，保留到期附近近月的信息。右侧百分位只使用截至当日往前五个自然年的已核实 PCR，包含当日；最初不足 20 日不计算。历史期权持仓从港交所结算日文件补齐，每个到期月份按 Call/Put 总持仓汇总，排除周度、小型和期货期权；下载中的缺口及实际样本天数在图上说明。百分位反映历史相对位置，不代表未来涨跌概率。港交所日报中的 MARKET PUT/CALL RATIO 是成交量比；这里使用未平仓量之比。</p></div><div id="hover" hidden></div>
+<script>
+
+const $ = id => document.getElementById(id);
+const fmt = (v,n=3) => v==null ? '—' : Number(v).toFixed(n);
+const pct = v => v==null ? '—' : fmt(v,1)+'%';
+let full=[], viewRows=[], modeKey='all', followLatest=true, chartAxes={};
+
+function draw(id, rows, keys) {
+  const el=$(id), w=640, h=360, pad={l:54,r:15,t:18,b:37};
+  const values=rows.flatMap(r=>keys.map(k=>r[k]).filter(v=>v!=null));
+  if(values.length<2) {
+    el.innerHTML='<text x="26" y="170" fill="#9eacc0">这段日期没有足够的真实数据</text>';
+    el.onpointermove=null; return;
+  }
+  let lo,hi;
+  if(id==='percentileChart'){lo=0;hi=100}
+  else {lo=Math.min(...values);hi=Math.max(...values);const gap=(hi-lo)*.12||.01;lo-=gap;hi+=gap;}
+  chartAxes[id]={lo,hi,pad,w,h};
+  const x=i=>pad.l+i*(w-pad.l-pad.r)/Math.max(rows.length-1,1);
+  const y=v=>pad.t+(hi-v)*(h-pad.t-pad.b)/(hi-lo);
+  let out='';
+  for(let j=0;j<5;j++) {
+    const val=lo+(hi-lo)*j/4, yy=y(val);
+    out+='<line x1="'+pad.l+'" y1="'+yy+'" x2="'+(w-pad.r)+'" y2="'+yy+'" stroke="#33445a"/>'+
+         '<text x="5" y="'+(yy+4)+'" fill="#a6b8cc" font-size="11">'+fmt(val,id==='percentileChart'?0:2)+'</text>';
+  }
+  for(const k of keys) {
+    const color=k===modeKey||k.endsWith('_percentile')?'#6ab6ff':k.endsWith('_ma')?'#e8b966':'#8296ae';
+    let path='', started=false;
+    rows.forEach((r,i)=>{
+      if(r[k]==null){started=false;return}
+      path+=(started?'L':'M')+x(i).toFixed(1)+' '+y(r[k]).toFixed(1)+' ';
+      started=true;
+    });
+    out+='<path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="'+
+         (k.endsWith('_lower')||k.endsWith('_upper')?1.5:2.3)+'"/>';
+  }
+  for(const i of [...new Set([0,Math.floor((rows.length-1)/2),rows.length-1])]) {
+    out+='<text x="'+x(i)+'" y="347" fill="#a6b8cc" text-anchor="middle" font-size="11">'+
+         rows[i].date.slice(5)+'</text>';
+  }
+  out+='<line id="'+id+'Cross" x1="0" x2="0" y1="'+pad.t+'" y2="'+(h-pad.b)+
+       '" stroke="#d9ebff" stroke-width="1" stroke-dasharray="4 3" pointer-events="none" style="display:none"/>';
+  out+='<line id="'+id+'Horizontal" x1="'+pad.l+'" x2="'+(w-pad.r)+'" y1="0" y2="0" stroke="#d9ebff" stroke-width="1" stroke-dasharray="4 3" pointer-events="none" style="display:none"/>';
+  out+='<circle id="'+id+'Point" r="5" fill="#d9ebff" stroke="#152237" stroke-width="2" pointer-events="none" style="display:none"/>';
+  out+='<rect id="'+id+'Hit" x="'+pad.l+'" y="'+pad.t+'" width="'+(w-pad.l-pad.r)+
+       '" height="'+(h-pad.t-pad.b)+'" fill="transparent" style="cursor:crosshair"/>';
+  el.innerHTML=out;
+  $(id+'Hit').onpointermove=ev=>{
+    const p=el.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    const ctm=el.getScreenCTM();if(!ctm)return;
+    const svgX=p.matrixTransform(ctm.inverse()).x;
+    const i=Math.max(0,Math.min(rows.length-1,Math.round((svgX-pad.l)/(w-pad.l-pad.r)*(rows.length-1))));
+    showHover(i,ev);
+  };
+  $(id+'Hit').onpointerleave=hideHover;
+}
+function showHover(i,ev) {
+  const r=viewRows[i], key=modeKey;
+  if(!r)return;
+  for(const id of ['pcrChart','percentileChart']) {
+    const cross=$(id+'Cross'), horizontal=$(id+'Horizontal'), point=$(id+'Point'), axis=chartAxes[id];
+    if(!cross||!axis)continue;
+    const px=axis.pad.l+i*(axis.w-axis.pad.l-axis.pad.r)/Math.max(viewRows.length-1,1);
+    cross.setAttribute('x1',px);cross.setAttribute('x2',px);cross.style.display='';
+    const val=id==='pcrChart'?r[key]:r[key+'_percentile'];
+    if(point&&val!=null){
+      const py=axis.pad.t+(axis.h-axis.pad.t-axis.pad.b)*(axis.hi-val)/(axis.hi-axis.lo);
+      point.setAttribute('cx',px);point.setAttribute('cy',py);point.style.display='';
+      horizontal.setAttribute('y1',py);horizontal.setAttribute('y2',py);horizontal.style.display='';
+    }else if(point){point.style.display='none'}
+    if(val==null&&horizontal)horizontal.style.display='none';
+  }
+  const tip=$('hover');
+  tip.innerHTML='<strong>'+r.date+'</strong>　'+$('symbol').value+
+     '<br>PCR：'+fmt(r[key],4)+'　MA20：'+fmt(r[key+'_ma'],4)+
+     '<br>下轨：'+fmt(r[key+'_lower'],4)+'　上轨：'+fmt(r[key+'_upper'],4)+
+     '<br>近月 PCR：'+fmt(r.front,4)+'　近月持仓占比：'+(r.front_oi_share==null?'—':fmt(r.front_oi_share*100,1)+'%')+
+     '<br>Put OI：'+(r[key+'_put_oi']==null?'—':r[key+'_put_oi'].toLocaleString())+
+     '　Call OI：'+(r[key+'_call_oi']==null?'—':r[key+'_call_oi'].toLocaleString())+
+     '<br>历史百分位：'+(r[key+'_percentile']==null?'—':fmt(r[key+'_percentile'],1)+'%')+
+     '　样本：'+(r[key+'_percentile_count']||0)+' 日'+
+     '<br>样本起点：'+(r[key+'_percentile_start']||'—')+
+     (r.expiry_proxy?'　<span style="color:#f6be75">到期周</span>':'')+
+     (r.expiry_two_days?'　<span style="color:#f6be75">最后两日</span>':'')+
+     (r.front_roll?'　<span style="color:#f6be75">换月</span>':'');
+  tip.hidden=false;
+  tip.style.left=Math.max(8,Math.min(ev.clientX+15,innerWidth-245))+'px';
+  tip.style.top=Math.max(8,Math.min(ev.clientY+15,innerHeight-155))+'px';
+}
+function hideHover(){
+  $('hover').hidden=true;
+  for(const id of ['pcrChart','percentileChart']) {
+    if($(id+'Cross'))$(id+'Cross').style.display='none';
+    if($(id+'Horizontal'))$(id+'Horizontal').style.display='none';
+    if($(id+'Point'))$(id+'Point').style.display='none';
+  }
+}
+function render(){
+  hideHover();
+  const symbol=$('symbol').value, key=$('mode').value, rng=+$('range').value;
+  const all=full.filter(x=>x.symbol===symbol), slider=$('timeline');
+  modeKey=key;
+  const max=Math.max(0,all.length-1), min=Math.min(max,Math.max(0,rng-1));
+  slider.min=min; slider.max=max;
+  if(followLatest || +slider.value<min || +slider.value>max)slider.value=max;
+  const end=+slider.value;
+  viewRows=all.slice(Math.max(0,end-rng+1),end+1);
+  const last=all.at(-1);
+  $('viewDates').textContent=viewRows.length?viewRows[0].date+' → '+viewRows.at(-1).date:'—';
+  $('pcr').textContent=last?fmt(last[key]):'—';
+  $('bb').textContent=last&&last[key+'_ma']!=null?fmt(last[key+'_ma'])+' / '+fmt(last[key+'_lower']):'—';
+  $('oi').textContent=last&&last[key+'_put_oi']!=null?
+    last[key+'_put_oi'].toLocaleString()+' / '+last[key+'_call_oi'].toLocaleString():'—';
+  $('day').textContent=last?last.date+' / '+last.front_month:'—';
+  $('day').style.fontSize='15px';
+  draw('pcrChart',viewRows,[key,key+'_ma',key+'_upper',key+'_lower']);
+  draw('percentileChart',viewRows,[key+'_percentile']);
+  const selected=viewRows.at(-1);
+  $('percentileNote').textContent=selected?
+    '截至 '+selected.date+'，实际采集 '+(selected[key+'_percentile_count']||0)+' 日（'+
+    (selected[key+'_percentile_start']||'—')+' 起）；'+
+    (selected[key+'_percentile_spans_five_years']?'样本首尾已跨越五年，仍需检查中间缺口。':'未覆盖完整五年，当前百分位为现有样本结果。'):
+    '尚无可核对的持仓数据。';
+  $('rows').innerHTML=all.slice(-12).reverse().map(r=>'<tr><td>'+r.date+'</td><td>'+
+    fmt(r.all)+'</td><td>'+fmt(r.front)+'</td><td>'+pct(r.all_percentile)+'</td><td>'+pct(r.front_percentile)+'</td></tr>').join('');
+  $('rule').textContent=last&&last[key]==null?
+    '该日期的期权日报尚未齐备，程序会自动补齐；空白不代表 PCR 为零。':
+    last&&last[key+'_below']?
+    '最新 PCR 低于 BB 下轨；请先检查换月与价格反应，不能仅凭 PCR 入场。':
+    '港交所 OI 为当日收盘后信息；图上光标显示同日值，交易判断最早从下一交易日开始。';
+}
+async function load(){
+  try{
+    const response=await fetch('/hk/api/data?ts='+Date.now(),{cache:'no-store'}), data=await response.json();
+    full=data.series;
+    const s=data.state, days=new Set(full.map(x=>x.date)).size;
+    $('status').className='notice'+(s.errors.length?' warn':'');
+    $('status').textContent='已核实 '+days+' 个日期、'+full.length+' 条指数记录。'+
+      (s.running?'自动补历史中：新增 '+s.done+' 份，待处理 '+s.pending+' 份。':s.message)+
+      (s.dtop_running?'　五年持仓补齐：已完成 '+s.dtop_done+' 日，待处理 '+s.dtop_pending+' 日。':
+       '　'+s.dtop_message)+
+      (s.dtop_errors.length?' 历史最近错误：'+s.dtop_errors.at(-1):'')+
+      (s.errors.length?' 最近错误：'+s.errors.at(-1):'');
+    render();
+  }catch(e){$('status').textContent='读取失败：'+e.message}
+}
+for(const id of ['symbol','mode','range'])$(id).onchange=()=>{followLatest=true;render()};
+$('timeline').oninput=()=>{followLatest=(+$('timeline').value===+$('timeline').max);render()};
+$('refresh').onclick=load;
+$('backfill').onclick=async()=>{
+  const response=await fetch('/hk/api/backfill'), result=await response.json();
+  $('status').textContent=result.error||'已启动自动补齐历史';
+  setTimeout(load,1000);
+};
+$('importDate').value=new Date().toISOString().slice(0,10);
+$('import').onclick=async()=>{
+  try{
+    const response=await fetch('/hk/api/import',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({date:$('importDate').value,symbol:$('importSymbol').value,text:$('reportText').value})});
+    const result=await response.json();
+    if(!response.ok)throw Error(result.error);
+    $('status').textContent='已核对导入 '+result.date+' '+result.symbol+'：'+result.months+' 个到期月份';
+    await load();
+  }catch(e){$('status').textContent='导入失败：'+e.message}
+};
+load();setInterval(load,60000);
+
+</script></html>
+

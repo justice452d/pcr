@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PCR 综合研究台</title>
+  <meta name="description" content="期权 PCR、股债利差与 A 股估值的本地研究仪表盘">
+  <style>
+    :root{color-scheme:dark;--bg:#071019;--panel:#0d1925;--panel2:#101f2e;--line:#22384d;--text:#e7f0f8;--muted:#8ea4b8;--blue:#50a9e8;--amber:#f1aa4b;--red:#ee6b70;--cyan:#55d6c1;--shadow:0 18px 50px #0005;font-family:Inter,"Microsoft YaHei",system-ui,sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 72% -20%,#12314b 0,transparent 38%),var(--bg);color:var(--text);font-size:16px}button,select{font:inherit}button{cursor:pointer}.shell{max-width:1540px;margin:auto;padding:20px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.mark{width:39px;height:39px;border-radius:11px;background:linear-gradient(145deg,#50a9e8,#18597e);box-shadow:0 7px 24px #2788c955;display:grid;place-items:center;font-weight:900}.brand h1{font-size:21px;margin:0}.brand small{display:block;color:var(--muted);font-size:12px;margin-top:3px}.system{color:var(--muted);font-size:13px;text-align:right}.nav{display:flex;gap:7px;padding:6px;background:#08131e;border:1px solid #1b3042;border-radius:14px;overflow:auto;margin-bottom:18px;position:sticky;top:8px;z-index:8;box-shadow:var(--shadow)}.nav button{white-space:nowrap;border:0;background:transparent;color:#9db1c4;padding:10px 16px;border-radius:9px}.nav button.active{background:#15324a;color:#fff;box-shadow:inset 0 0 0 1px #2c6388}.view{display:none}.view.active{display:block}.heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 14px}.heading h2{font-size:24px;margin:0 0 5px}.heading p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}.refresh{border:1px solid #31506a;background:#12283b;color:#dcecf8;border-radius:10px;padding:9px 13px}.controls{display:grid;grid-template-columns:repeat(3,minmax(160px,230px)) 1fr;gap:12px;background:#0a1722;border:1px solid #1d3346;border-radius:14px;padding:14px;margin-bottom:14px}.control label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}.control select{width:100%;background:#0e2131;color:#e6f0f8;border:1px solid #29465e;border-radius:9px;padding:10px}.hint{align-self:end;color:#829aae;font-size:13px;line-height:1.5}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}.card,.panel,.note{background:linear-gradient(145deg,#0f1d2a,#0b1722);border:1px solid #1e3447;border-radius:15px;box-shadow:0 10px 35px #0002}.card{padding:16px}.card .label{color:var(--muted);font-size:13px}.card .value{font-size:25px;font-weight:730;margin-top:8px;letter-spacing:-.02em}.card .meta{color:#708aa1;font-size:12px;margin-top:6px}.grid{display:grid;grid-template-columns:1.18fr .82fr;gap:14px}.panel{padding:16px;min-height:445px}.panel h3{font-size:15px;color:#b7c9d8;margin:0 0 10px;font-weight:600}.legend{display:flex;gap:14px;flex-wrap:wrap;color:#8199ad;font-size:12px;margin-bottom:5px}.swatch{width:13px;height:3px;display:inline-block;vertical-align:middle;margin-right:5px;border-radius:4px}.chart{width:100%;height:370px;display:block;overflow:visible}.note{padding:13px 16px;color:#90a7ba;font-size:13px;line-height:1.65;margin-top:14px}.tip{position:fixed;display:none;z-index:30;pointer-events:none;background:#06111b;border:1px solid #385975;border-radius:9px;padding:9px 11px;font-size:12px;line-height:1.65;box-shadow:var(--shadow);white-space:pre-line}.table-wrap{overflow:auto;margin-top:14px;border:1px solid #1d3447;border-radius:13px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;padding:10px 12px;border-bottom:1px solid #172b3c;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:#8ea5b8;font-weight:500;background:#0b1824}.status-warn{color:#f4bf79}.status-ok{color:#6fd4b1}
+    .thermo-hero{display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:center;padding:22px;margin-bottom:14px}.thermo-gauge{--t:0;--gauge:#50a9e8;width:220px;height:220px;border-radius:50%;background:conic-gradient(var(--gauge) calc(var(--t)*1%),#1b3042 0);display:grid;place-items:center;box-shadow:0 0 45px color-mix(in srgb,var(--gauge) 22%,transparent)}.thermo-gauge:before{content:"";width:168px;height:168px;border-radius:50%;background:#0b1722;border:1px solid #263c50;position:absolute}.thermo-gauge{position:relative}.thermo-reading{position:relative;text-align:center;z-index:1}.thermo-reading strong{display:block;font-size:43px;letter-spacing:-.04em}.thermo-reading span{font-size:17px;color:#bdd0df}.thermo-copy h2{font-size:27px;margin:0 0 8px}.thermo-copy p{margin:6px 0;color:#9fb2c3;line-height:1.7}.thermo-meta{font-size:13px;color:#7892a8}.metric-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.metric-card{padding:17px}.metric-title{display:flex;justify-content:space-between;color:#b8cad8;font-size:14px}.metric-value{font-size:27px;font-weight:730;margin:10px 0 5px}.metric-details{font-size:13px;color:#8ca4b8;line-height:1.7}.percent-bar{height:7px;background:#1a3043;border-radius:9px;margin:12px 0 8px;overflow:hidden}.percent-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--amber),var(--red));border-radius:inherit}.five-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;font-size:11px;color:#738ca1;text-align:center}.five-stats b{display:block;color:#b7c9d8;font-weight:500;margin-top:3px}.thermo-actions{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:10px;color:#9bb0c1;font-size:13px}.thermo-actions label{display:flex;gap:7px;align-items:center}.thermo-actions input{accent-color:#50a9e8}.advice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.advice-grid .panel{min-height:0}.alert{border-color:#76502a;background:#211a12;color:#f2c58d}.model-settings{margin-top:14px;background:#0a1722;border:1px solid #1d3346;border-radius:14px;padding:14px}.model-settings summary{cursor:pointer;color:#bfd1df;font-weight:600}.weight-grid{display:grid;grid-template-columns:repeat(3,minmax(150px,220px)) 1fr;gap:12px;align-items:end;margin-top:14px}.weight-grid label{font-size:12px;color:var(--muted)}.weight-grid input{display:block;width:100%;margin-top:6px;background:#0e2131;color:#e6f0f8;border:1px solid #29465e;border-radius:9px;padding:10px}.button-row{display:flex;gap:8px}.source-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;margin-top:14px;font-size:12px;color:#7f98ad}.source-list b{color:#b7c9d8;font-weight:500}.model-error{color:#f1a0a3;font-size:13px;margin-top:10px}.missing-banner{display:none;margin-bottom:14px}.missing-banner.show{display:block}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}.hint{grid-column:1/-1}.cards{grid-template-columns:1fr 1fr}.panel{min-height:400px}.thermo-hero{grid-template-columns:220px 1fr}.thermo-gauge{width:190px;height:190px}.thermo-gauge:before{width:144px;height:144px}.metric-cards{grid-template-columns:1fr}.advice-grid{grid-template-columns:1fr}.weight-grid{grid-template-columns:1fr 1fr}.source-list{grid-template-columns:1fr}}
+    @media(max-width:600px){.shell{padding:10px}.topbar{align-items:flex-start}.system{display:none}.controls{grid-template-columns:1fr}.hint{grid-column:auto}.cards{grid-template-columns:1fr 1fr}.card .value{font-size:20px}.heading{align-items:flex-start}.heading h2{font-size:21px}.panel{padding:11px}.chart{height:320px}.nav button{padding:9px 12px}.thermo-hero{grid-template-columns:1fr;text-align:center}.thermo-gauge{margin:auto}.weight-grid{grid-template-columns:1fr}.button-row{justify-content:flex-start}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><div class="mark">P</div><div><h1>PCR 综合研究台</h1><small>本地数据 · 收盘后自动更新</small></div></div>
+    <div id="system" class="system">正在检查缓存状态…</div>
+  </header>
+  <nav class="nav" aria-label="研究模块">
+    <button class="active" data-view="options">期权 PCR</button>
+    <button data-view="hk">恒指 / 恒科</button>
+    <button data-view="spread">股债利差</button>
+    <button data-view="dividendLowVol">红利低波估值</button>
+    <button data-view="valuation">估值温度</button>
+  </nav>
+
+  <section id="options" class="view active">
+    <div class="heading"><div><h2>内地期权持仓 PCR</h2><p>公共缓存统一计算全部合约与近月合约口径；布林带始终随所选口径重算。</p></div><button class="refresh" onclick="refreshData('options')">检查收盘数据</button></div>
+    <div class="controls">
+      <div class="control"><label>品种</label><select id="optProduct"><option value="io">沪深300 IO</option><option value="au">沪金 AU</option><option value="ag">沪银 AG</option><option value="cu">沪铜 CU</option><option value="sc">原油 SC</option></select></div>
+      <div class="control"><label>PCR 口径</label><select id="optMode"><option value="all">裸 PCR · 全部合约</option><option value="front">近月 PCR</option></select></div>
+      <div class="control"><label>显示范围</label><select id="optRange"><option value="60">60 个交易日</option><option value="120">120 个交易日</option><option value="260" selected>260 个交易日</option><option value="520">520 个交易日</option></select></div>
+      <div class="hint">蓝线为 OI-PCR，黄线为 20 日均值，灰线为 ±2σ。右图为代表期货合约收盘价。</div>
+    </div>
+    <div class="cards"><div class="card"><div class="label">最新 PCR</div><div class="value" id="optPcr">—</div><div class="meta" id="optDate">—</div></div><div class="card"><div class="label">Put OI / Call OI</div><div class="value" id="optOi">—</div><div class="meta">未平仓量</div></div><div class="card"><div class="label">MA20 / 下轨 / 上轨</div><div class="value" id="optBand">—</div><div class="meta">BB(20,2)</div></div><div class="card"><div class="label">近月合约 / 持仓占比</div><div class="value" id="optFront">—</div><div class="meta">每日自动识别最近有效到期月</div></div></div>
+    <div class="grid"><div class="panel"><h3>PCR 与滚动轨道</h3><div class="legend"><span><i class="swatch" style="background:var(--blue)"></i>PCR</span><span><i class="swatch" style="background:var(--amber)"></i>MA20</span><span><i class="swatch" style="background:#71869a"></i>上下轨</span></div><svg id="optPcrChart" class="chart"></svg></div><div class="panel"><h3>代表期货合约收盘价</h3><div class="legend">按持仓量选择代表合约；换月处可能出现跳变</div><svg id="optPriceChart" class="chart"></svg></div></div>
+    <div class="note">“裸 PCR”按当日全部有效月份的 Put OI ÷ Call OI 计算；“近月 PCR”只使用最近一个同时具有 Put/Call 持仓的到期月份。数据来自中金所、上期所及上海国际能源交易中心的公开日行情缓存。</div>
+  </section>
+
+  <section id="hk" class="view">
+    <div class="heading"><div><h2>恒指 / 恒生科技期权</h2><p>保留近五年已核实 OI 缓存；右图恢复为对应现货指数，不再显示 PCR 历史百分位。</p></div><button class="refresh" onclick="refreshData('hk')">检查港股数据</button></div>
+    <div class="controls">
+      <div class="control"><label>指数</label><select id="hkSymbol"><option value="HTI">恒生科技 HTI</option><option value="HSI">恒生指数 HSI</option></select></div>
+      <div class="control"><label>PCR 口径</label><select id="hkMode"><option value="all">裸 PCR · 全部月份</option><option value="front">近月 PCR</option></select></div>
+      <div class="control"><label>显示范围</label><select id="hkRange"><option value="60">60 个交易日</option><option value="120">120 个交易日</option><option value="260" selected>260 个交易日</option><option value="99999">全部五年</option></select></div>
+      <div class="hint">期权 OI 与指数收盘价按同一交易日对齐；信号只能从下一交易日使用。</div>
+    </div>
+    <div class="cards"><div class="card"><div class="label">最新 OI-PCR</div><div class="value" id="hkPcr">—</div><div class="meta" id="hkDate">—</div></div><div class="card"><div class="label">Put OI / Call OI</div><div class="value" id="hkOi">—</div><div class="meta">所选口径</div></div><div class="card"><div class="label">MA20 / 下轨 / 上轨</div><div class="value" id="hkBand">—</div><div class="meta">BB(20,2)</div></div><div class="card"><div class="label">现货指数收盘</div><div class="value" id="hkClose">—</div><div class="meta" id="hkFront">—</div></div></div>
+    <div class="grid"><div class="panel"><h3>PCR 与滚动轨道</h3><div class="legend"><span><i class="swatch" style="background:var(--blue)"></i>PCR</span><span><i class="swatch" style="background:var(--amber)"></i>MA20</span><span><i class="swatch" style="background:#71869a"></i>上下轨</span></div><svg id="hkPcrChart" class="chart"></svg></div><div class="panel"><h3 id="hkIndexTitle">恒生科技指数</h3><div class="legend">同日现货指数收盘价</div><svg id="hkIndexChart" class="chart"></svg></div></div>
+    <div class="note">持仓数据按港交所月度及长期指数期权逐月汇总，排除周度、小型与期货期权。五年历史缓存继续保留；历史百分位试验已从界面移除。</div>
+  </section>
+
+  <section id="spread" class="view">
+    <div class="heading"><div><h2>股债利差</h2><p>盈利收益率（100 / PE-TTM）减去中债 10 年国债收益率；三套指数在同一视图切换。</p></div><button class="refresh" onclick="refreshData('market')">更新公开数据</button></div>
+    <div class="controls">
+      <div class="control"><label>指数</label><select id="spreadIndex"><option value="sse">上证指数</option><option value="csi">中证全指</option><option value="china50">CHINA50 · 上证50估值口径</option></select></div>
+      <div class="control"><label>显示范围</label><select id="spreadRange"><option value="756">近 3 年</option><option value="1512" selected>近 6 年</option><option value="99999">全部历史</option></select></div>
+      <div class="control"><label>轨道参数</label><select disabled><option>756 日 · ±2σ</option></select></div>
+      <div class="hint">CHINA50 使用公开可持续更新的上证50（000016）PE-TTM 作为在岸 50 龙头估值口径，并在界面明确标注。</div>
+    </div>
+    <div class="cards"><div class="card"><div class="label">最新股债利差</div><div class="value" id="spreadErp">—</div><div class="meta" id="spreadDate">—</div></div><div class="card"><div class="label">指数 / PE-TTM</div><div class="value" id="spreadIndexVal">—</div><div class="meta" id="spreadPe">—</div></div><div class="card"><div class="label">10 年国债收益率</div><div class="value" id="spreadBond">—</div><div class="meta">中债曲线</div></div><div class="card"><div class="label">当前位置</div><div class="value" id="spreadZ">—</div><div class="meta">相对 756 日滚动均值</div></div></div>
+    <div class="panel"><h3 id="spreadPriceTitle">股债利差、滚动轨道与上证指数</h3><div class="legend"><span><i class="swatch" style="background:var(--blue)"></i>股债利差</span><span><i class="swatch" style="background:var(--amber)"></i>均值</span><span><i class="swatch" style="background:#71869a"></i>上下轨</span><span><i class="swatch" style="background:var(--red)"></i>指数收盘（右轴）</span></div><svg id="spreadChart" class="chart"></svg></div>
+    <div class="note">该指标是简化的历史盈利收益率差，不是资金流向，也不是对未来收益的保证。CHINA50 选项采用上证50作为可复算代理，并非富时中国 A50 的官方估值序列。</div>
+  </section>
+
+  <section id="valuation" class="view">
+    <div class="heading"><div><h2>A 股中期估值温度</h2><p>研究版只保留中证全指 PE-TTM 主体，按月末数据更新。</p></div><button class="refresh" onclick="refreshData('market')">更新月度数据</button></div>
+    <div class="cards"><div class="card"><div class="label">最新 PE-TTM</div><div class="value" id="valPe">—</div><div class="meta" id="valDate">—</div></div><div class="card"><div class="label">近 10 年历史分位</div><div class="value" id="valPct">—</div><div class="meta">滚动 120 个月</div></div><div class="card"><div class="label">中证全指</div><div class="value" id="valClose">—</div><div class="meta">月末收盘</div></div><div class="card"><div class="label">估值温度</div><div class="value" id="valTemp">—</div><div class="meta">仅描述历史相对位置</div></div></div>
+    <div class="panel"><h3>中证全指 PE-TTM 与上证指数（月频）</h3><div class="legend"><span><i class="swatch" style="background:var(--blue)"></i>PE-TTM（左轴）</span><span><i class="swatch" style="background:var(--red)"></i>上证指数（右轴）</span></div><svg id="valuationChart" class="chart"></svg></div>
+    <div class="note">月末取中证全指最后一个有效交易日的 PE-TTM。此页已删除研究版中的前瞻收益、事件锚点和额外因子，只保留估值 PE 主线。</div>
+  </section>
+
+  <section id="dividendLowVol" class="view">
+    <div class="heading"><div><h2>红利低波估值温度计</h2><p>中证红利低波动指数 H30269 · 0 为极度便宜，100 为极度昂贵。</p></div><button class="refresh" onclick="refreshData('dividend-low-vol')">更新每日数据</button></div>
+    <div id="dlvMissing" class="note alert missing-banner"></div>
+    <div class="card thermo-hero">
+      <div id="dlvGauge" class="thermo-gauge"><div class="thermo-reading"><strong id="dlvTemperature">—</strong><span id="dlvState">数据读取中</span></div></div>
+      <div class="thermo-copy"><h2>当前估值温度</h2><div id="dlvExplanation"><p>正在读取股息率、股债利差与 PB 数据。</p></div><div class="thermo-meta" id="dlvMeta">—</div></div>
+    </div>
+    <div class="controls">
+      <div class="control"><label>历史百分位窗口</label><select id="dlvWindow"><option value="5">5Y</option><option value="10" selected>10Y</option><option value="all">ALL</option></select></div>
+      <div class="hint">股息率温度与股债利差温度反向计算；PB 温度正向计算。所有分位统一使用“历史样本中 ≤ 当前值的数量 ÷ 样本数”。</div>
+    </div>
+    <div class="metric-cards">
+      <div class="card metric-card"><div class="metric-title"><span>股息率</span><span id="dlvDividendWeight">权重 45%</span></div><div class="metric-value" id="dlvDividend">—</div><div class="metric-details" id="dlvDividendDetail">历史分位 — · 温度 —</div><div class="percent-bar"><i id="dlvDividendBar" style="width:0"></i></div><div class="five-stats" id="dlvDividendStats"></div></div>
+      <div class="card metric-card"><div class="metric-title"><span>股债利差</span><span id="dlvSpreadWeight">权重 35%</span></div><div class="metric-value" id="dlvSpread">—</div><div class="metric-details" id="dlvSpreadDetail">红利股息率 — · 中国10Y —</div><div class="percent-bar"><i id="dlvSpreadBar" style="width:0"></i></div><div class="metric-details" id="dlvSpreadModel">—</div></div>
+      <div class="card metric-card"><div class="metric-title"><span>PB</span><span id="dlvPbWeight">权重 20%</span></div><div class="metric-value" id="dlvPb">—</div><div class="metric-details" id="dlvPbDetail">历史分位 — · 温度 —</div><div class="percent-bar"><i id="dlvPbBar" style="width:0"></i></div><div class="five-stats" id="dlvPbStats"></div></div>
+    </div>
+    <div class="panel"><h3>红利低波估值温度历史</h3><div class="thermo-actions"><label><input id="dlvShowTemp" type="checkbox" checked>估值温度</label><label><input id="dlvShowPrice" type="checkbox" checked>红利低波指数</label><span>价格指数，未包含现金分红再投资</span></div><svg id="dlvChart" class="chart"></svg></div>
+    <div class="advice-grid"><div class="panel"><h3>养老金定投参考</h3><div class="metric-value" id="dlvAdviceState">—</div><p class="metric-details" id="dlvAdvice">数据完整后生成机械参考；这不是交易信号。</p></div><div class="panel" id="dlvFundamental"><h3>基本面检查</h3><p class="metric-details">高股息可能来自股价快速下跌、盈利恶化或市场预期未来削减分红。估值温度只描述历史相对位置，不替代对行业盈利和分红稳定性的检查。</p><p id="dlvFundamentalAlert" class="metric-details"></p></div></div>
+    <details class="model-settings"><summary>模型参数</summary><div class="weight-grid"><label>股息率权重（%）<input id="dlvWeightDividend" type="number" min="0" max="100" step="1" value="45"></label><label>股债利差权重（%）<input id="dlvWeightSpread" type="number" min="0" max="100" step="1" value="35"></label><label>PB 权重（%）<input id="dlvWeightPb" type="number" min="0" max="100" step="1" value="20"></label><div class="button-row"><button class="refresh" id="dlvApplyWeights">应用</button><button class="refresh" id="dlvResetWeights">恢复默认</button></div></div><div id="dlvWeightError" class="model-error"></div><div class="source-list" id="dlvSources"></div></details>
+    <div class="note">自动数据使用中证指数 H30269 官方价格和股息率、中国债券信息网10年国债收益率。PB 来自中证官方月度事实表，日间沿用最近且不超过45天的快照并显示其日期；这不是日频 PB。官方公开源暂无长期 PB 历史，因此历史从本地缓存积累，也可用本地 JSON/CSV 补齐。任何必要数据缺失时不生成完整温度。</div>
+  </section>
+</div>
+<div id="tip" class="tip"></div>
+<script>
+const $=id=>document.getElementById(id), fmt=(v,n=3)=>v==null||!isFinite(+v)?'—':Number(v).toFixed(n), integer=v=>v==null?'—':Math.round(v).toLocaleString('zh-CN');
+const names={io:'沪深300 IO',au:'沪金 AU',ag:'沪银 AG',cu:'沪铜 CU',sc:'原油 SC'}, indexNames={sse:'上证指数',csi:'中证全指',china50:'CHINA50 · 上证50估值口径'};
+let caches={};
+document.querySelectorAll('.nav button').forEach(button=>button.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x===button));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===button.dataset.view));if(button.dataset.view==='hk')loadHK();if(button.dataset.view==='spread')loadSpread();if(button.dataset.view==='dividendLowVol')loadDividendLowVol();if(button.dataset.view==='valuation')loadValuation()});
+async function api(url){const response=await fetch(url);const payload=await response.json();if(!response.ok)throw Error(payload.error||'请求失败');return payload}
+function status(message,error=false){$('system').innerHTML=`<span class="${error?'status-warn':'status-ok'}">●</span> ${message}`}
+async function loadStatus(){try{let x=await api('/api/status');$('system').innerHTML=`<span class="status-ok">●</span> ${x.options}<br>${x.lan_url}`}catch(e){status(e.message,true)}}
+async function refreshData(target){status('后台更新已启动…');try{await api('/api/refresh?target='+target);setTimeout(()=>{loadStatus();if(target==='options')loadOptions();if(target==='hk')loadHK();if(target==='dividend-low-vol')loadDividendLowVol();if(target==='market'){loadSpread();loadValuation()}},8000)}catch(e){status(e.message,true)}}
+
+function signedInteger(v){if(v==null||!isFinite(+v))return '—';const n=Math.round(+v);return `${n>0?'+':''}${n.toLocaleString('zh-CN')}`}
+function signedPercent(v){if(v==null||!isFinite(+v))return '—';const n=+v*100;return `${n>0?'+':''}${n.toFixed(2)}%`}
+function oiTooltip(rows,index,mode){
+  const row=rows[index],previous=index>0?rows[index-1]:null,putKey=mode+'_put_oi',callKey=mode+'_call_oi';
+  const lines=[`Put OI: ${integer(row[putKey])}`,`Call OI: ${integer(row[callKey])}`];
+  const next=index+1<rows.length?rows[index+1]:null;
+  if(mode==='front'&&next&&row.front_month!==next.front_month)lines.push('近月提示: 换月前最后一个交易日');
+  if(!previous){lines.push('Put OI 日变化: 无上一交易日','Call OI 日变化: 无上一交易日');return lines}
+  if(mode==='front'&&row.front_month!==previous.front_month){lines.push(`近月换月: ${previous.front_month||'—'} → ${row.front_month||'—'}`,'Put OI 日变化: 换月，不计算','Call OI 日变化: 换月，不计算');return lines}
+  const putChange=+row[putKey]-+previous[putKey],callChange=+row[callKey]-+previous[callKey];
+  const putRate=+previous[putKey]?putChange/+previous[putKey]:null,callRate=+previous[callKey]?callChange/+previous[callKey]:null;
+  lines.push(`Put OI 日变化: ${signedInteger(putChange)}`,`Call OI 日变化: ${signedInteger(callChange)}`,`Put OI 变化率: ${signedPercent(putRate)}`,`Call OI 变化率: ${signedPercent(callRate)}`);
+  return lines
+}
+
+function pointerInSvg(svg,event){const point=svg.createSVGPoint();point.x=event.clientX;point.y=event.clientY;const matrix=svg.getScreenCTM();return matrix?point.matrixTransform(matrix.inverse()):{x:0,y:0}}
+function domain(rows,series){const values=[];series.forEach(s=>rows.forEach(r=>{const v=r[s.key];if(v!=null&&isFinite(+v))values.push(+v)}));if(!values.length)return null;let lo=Math.min(...values),hi=Math.max(...values),gap=(hi-lo)*.09||Math.abs(hi)*.03||1;return{lo:lo-gap,hi:hi+gap}}
+function positionTip(event,lines){
+  const tip=$('tip'),margin=14,gap=12;
+  tip.textContent=lines.join('\n');tip.style.display='block';
+  const box=tip.getBoundingClientRect();
+  let left=event.clientX+gap,top=event.clientY+gap;
+  if(left+box.width>innerWidth-margin)left=event.clientX-box.width-gap;
+  if(top+box.height>innerHeight-margin)top=event.clientY-box.height-gap;
+  tip.style.left=Math.max(margin,Math.min(innerWidth-box.width-margin,left))+'px';
+  tip.style.top=Math.max(margin,Math.min(innerHeight-box.height-margin,top))+'px'
+}
+function draw(id,rows,series,opts={}){
+  const svg=$(id),W=920,H=370,L=62,R=18,T=18,B=42;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';const d=domain(rows,series);
+  if(!d){svg.innerHTML='<text x="62" y="70" fill="#8199ad">暂无可绘制数据</text>';return}
+  const X=i=>L+(W-L-R)*i/Math.max(1,rows.length-1),Y=v=>H-B-(H-T-B)*(v-d.lo)/(d.hi-d.lo);let html='';
+  for(let i=0;i<5;i++){const y=T+(H-T-B)*i/4,v=d.hi-(d.hi-d.lo)*i/4;html+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="#1c3042"/><text x="${L-8}" y="${y+4}" text-anchor="end" fill="#6f879b" font-size="11">${opts.price?fmt(v,0):fmt(v,2)}</text>`}
+  for(let i=0;i<Math.min(6,rows.length);i++){const p=Math.round((rows.length-1)*i/Math.max(1,Math.min(6,rows.length)-1));html+=`<text x="${X(p)}" y="${H-14}" text-anchor="middle" fill="#6f879b" font-size="11">${(rows[p].date||'').slice(2,7)}</text>`}
+  series.forEach(s=>{let parts=[],part=[];rows.forEach((row,i)=>{const v=row[s.key];if(v==null||!isFinite(+v)){if(part.length)parts.push(part);part=[]}else part.push(`${X(i)},${Y(+v)}`)});if(part.length)parts.push(part);parts.forEach(points=>{html+=points.length>1?`<polyline points="${points.join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.width||1.6}" vector-effect="non-scaling-stroke"/>`:`<circle cx="${points[0].split(',')[0]}" cy="${points[0].split(',')[1]}" r="4" fill="${s.color}"/>`})});
+  html+=`<g id="${id}cross" style="display:none"><line y1="${T}" y2="${H-B}" stroke="#d8e8f4" stroke-dasharray="4 4"/><circle r="4" fill="#fff"/></g><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" pointer-events="all"/>`;svg.innerHTML=html;
+  const hit=svg.lastElementChild,cross=$(`${id}cross`),line=cross.children[0],dot=cross.children[1];hit.onpointermove=e=>{const p=pointerInSvg(svg,e),f=Math.max(0,Math.min(1,(p.x-L)/(W-L-R))),i=Math.round(f*(rows.length-1)),row=rows[i],x=X(i),primary=row[series[0].key],y=primary==null?T:Y(+primary);line.setAttribute('x1',x);line.setAttribute('x2',x);dot.setAttribute('cx',x);dot.setAttribute('cy',y);cross.style.display='';const extra=opts.tooltip?opts.tooltip(row,i,rows):[];positionTip(e,[row.date,...series.map(s=>`${s.label}: ${opts.price?fmt(row[s.key],2):fmt(row[s.key],4)}`),...extra])};hit.onpointerleave=()=>{cross.style.display='none';$('tip').style.display='none'}
+}
+function drawDual(id,rows,series){
+  const svg=$(id),W=1100,H=390,L=66,R=76,T=18,B=44,leftSeries=series.filter(s=>s.axis!=='right'),rightSeries=series.filter(s=>s.axis==='right'),dl=domain(rows,leftSeries),dr=domain(rows,rightSeries);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';
+  if(!dl||!dr){svg.innerHTML='<text x="66" y="70" fill="#8199ad">暂无可绘制的双轴数据</text>';return}
+  const X=i=>L+(W-L-R)*i/Math.max(1,rows.length-1),YL=v=>H-B-(H-T-B)*(v-dl.lo)/(dl.hi-dl.lo),YR=v=>H-B-(H-T-B)*(v-dr.lo)/(dr.hi-dr.lo);let html='';
+  for(let i=0;i<5;i++){const y=T+(H-T-B)*i/4,lv=dl.hi-(dl.hi-dl.lo)*i/4,rv=dr.hi-(dr.hi-dr.lo)*i/4;html+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="#1c3042"/><text x="${L-8}" y="${y+4}" text-anchor="end" fill="#67b8eb" font-size="11">${fmt(lv,2)}</text><text x="${W-R+8}" y="${y+4}" fill="#ee777b" font-size="11">${fmt(rv,0)}</text>`}
+  for(let i=0;i<Math.min(7,rows.length);i++){const p=Math.round((rows.length-1)*i/Math.max(1,Math.min(7,rows.length)-1));html+=`<text x="${X(p)}" y="${H-14}" text-anchor="middle" fill="#6f879b" font-size="11">${(rows[p].date||'').slice(2,7)}</text>`}
+  series.forEach(s=>{const Y=s.axis==='right'?YR:YL;let parts=[],part=[];rows.forEach((row,i)=>{const v=row[s.key];if(v==null||!isFinite(+v)){if(part.length)parts.push(part);part=[]}else part.push(`${X(i)},${Y(+v)}`)});if(part.length)parts.push(part);parts.forEach(points=>{html+=points.length>1?`<polyline points="${points.join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.width||1.6}" vector-effect="non-scaling-stroke"/>`:`<circle cx="${points[0].split(',')[0]}" cy="${points[0].split(',')[1]}" r="4" fill="${s.color}"/>`})});
+  html+=`<g id="${id}cross" style="display:none"><line y1="${T}" y2="${H-B}" stroke="#d8e8f4" stroke-dasharray="4 4"/><circle r="4" fill="#fff"/></g><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" pointer-events="all"/>`;svg.innerHTML=html;
+  const hit=svg.lastElementChild,cross=$(`${id}cross`),line=cross.children[0],dot=cross.children[1];hit.onpointermove=e=>{const p=pointerInSvg(svg,e),f=Math.max(0,Math.min(1,(p.x-L)/(W-L-R))),i=Math.round(f*(rows.length-1)),row=rows[i],x=X(i),primary=row[series[0].key],y=primary==null?T:YL(+primary);line.setAttribute('x1',x);line.setAttribute('x2',x);dot.setAttribute('cx',x);dot.setAttribute('cy',y);cross.style.display='';positionTip(e,[row.date,...series.map(s=>`${s.label}: ${s.axis==='right'?fmt(row[s.key],2):fmt(row[s.key],4)}`)])};hit.onpointerleave=()=>{cross.style.display='none';$('tip').style.display='none'}
+}
+
+function temperatureColor(value){return value==null?'#71869a':value<20?'#55d6c1':value<40?'#50a9e8':value<60?'#9bb3c7':value<75?'#f1aa4b':value<90?'#e4875f':'#ee6b70'}
+function statsMarkup(stats,digits=2){const labels=[['最低','min'],['25%','q25'],['中位','median'],['75%','q75'],['最高','max']];return labels.map(([label,key])=>`<span>${label}<b>${fmt(stats?.[key],digits)}</b></span>`).join('')}
+function drawTemperatureHistory(rows){
+  const svg=$('dlvChart'),showTemp=$('dlvShowTemp').checked,showPrice=$('dlvShowPrice').checked,W=1100,H=390,L=62,R=76,T=18,B=44;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';if(!rows.length||(!showTemp&&!showPrice)){svg.innerHTML='<text x="62" y="70" fill="#8199ad">请选择至少一条曲线</text>';return}
+  const prices=rows.map(r=>+r.index_price).filter(Number.isFinite),pLo=prices.length?Math.min(...prices):0,pHi=prices.length?Math.max(...prices):1,pGap=(pHi-pLo)*.08||1,dr={lo:pLo-pGap,hi:pHi+pGap};
+  const X=i=>L+(W-L-R)*i/Math.max(1,rows.length-1),YT=v=>H-B-(H-T-B)*(+v/100),YP=v=>H-B-(H-T-B)*(+v-dr.lo)/(dr.hi-dr.lo);
+  const bands=[[0,20,'#55d6c1'],[20,40,'#50a9e8'],[40,60,'#8093a5'],[60,75,'#f1aa4b'],[75,90,'#e4875f'],[90,100,'#ee6b70']];let html='';
+  bands.forEach(([lo,hi,color])=>{html+=`<rect x="${L}" y="${YT(hi)}" width="${W-L-R}" height="${YT(lo)-YT(hi)}" fill="${color}" opacity=".055"/>`});
+  for(let i=0;i<=5;i++){const value=i*20,y=YT(value);html+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="#1c3042"/><text x="${L-8}" y="${y+4}" text-anchor="end" fill="#67b8eb" font-size="11">${value}</text>`;if(showPrice&&prices.length){const pv=dr.lo+(dr.hi-dr.lo)*value/100;html+=`<text x="${W-R+8}" y="${y+4}" fill="#ee777b" font-size="11">${fmt(pv,0)}</text>`}}
+  for(let i=0;i<Math.min(7,rows.length);i++){const p=Math.round((rows.length-1)*i/Math.max(1,Math.min(7,rows.length)-1));html+=`<text x="${X(p)}" y="${H-14}" text-anchor="middle" fill="#6f879b" font-size="11">${(rows[p].date||'').slice(2,7)}</text>`}
+  function line(key,color,width,Y){let parts=[],part=[];rows.forEach((row,i)=>{const v=row[key];if(v==null||!isFinite(+v)){if(part.length)parts.push(part);part=[]}else part.push(`${X(i)},${Y(v)}`)});if(part.length)parts.push(part);parts.forEach(points=>{html+=points.length>1?`<polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="${width}" vector-effect="non-scaling-stroke"/>`:`<circle cx="${points[0].split(',')[0]}" cy="${points[0].split(',')[1]}" r="4" fill="${color}"/>`})}
+  if(showTemp)line('valuation_temperature','#50a9e8',2.6,YT);if(showPrice&&prices.length)line('index_price','#ee6b70',2.1,YP);
+  html+=`<g id="dlvChartCross" style="display:none"><line y1="${T}" y2="${H-B}" stroke="#d8e8f4" stroke-dasharray="4 4"/><circle r="4" fill="#fff"/></g><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" pointer-events="all"/>`;svg.innerHTML=html;
+  const hit=svg.lastElementChild,cross=$('dlvChartCross'),crossLine=cross.children[0],dot=cross.children[1];hit.onpointermove=e=>{const p=pointerInSvg(svg,e),i=Math.round(Math.max(0,Math.min(1,(p.x-L)/(W-L-R)))*(rows.length-1)),row=rows[i],x=X(i),value=row.valuation_temperature,y=value==null?T:YT(value);crossLine.setAttribute('x1',x);crossLine.setAttribute('x2',x);dot.setAttribute('cx',x);dot.setAttribute('cy',y);cross.style.display='';positionTip(e,[row.date,`估值温度: ${fmt(row.valuation_temperature,1)}℃`,`状态: ${row.state||'—'}`,`股息率: ${fmt(row.dividend_yield,2)}%`,`股债利差: ${fmt(row.spread,2)}%`,`PB: ${fmt(row.pb,2)}`,`指数: ${fmt(row.index_price,2)}`])};hit.onpointerleave=()=>{cross.style.display='none';$('tip').style.display='none'}
+}
+
+function dlvWeights(){return{dividend:+$('dlvWeightDividend').value,spread:+$('dlvWeightSpread').value,pb:+$('dlvWeightPb').value}}
+async function loadDividendLowVol(){
+  const weights=dlvWeights(),sum=weights.dividend+weights.spread+weights.pb;$('dlvWeightError').textContent='';if(Math.abs(sum-100)>.0001){$('dlvWeightError').textContent=`权重合计 ${fmt(sum,1)}%，必须等于 100%。`;return}
+  status('正在计算红利低波估值温度…');
+  try{
+    const windowKey=$('dlvWindow').value,url=`/api/dividend-low-vol?window=${windowKey}&wd=${weights.dividend}&ws=${weights.spread}&wp=${weights.pb}`,payload=await api(url),rows=payload.data||[],last=payload.latest;caches.dividendLowVol=payload;
+    if(!last)throw Error('红利低波缓存为空，请先点击“更新每日数据”');
+    const temperature=last.valuation_temperature,color=temperatureColor(temperature),gauge=$('dlvGauge');gauge.style.setProperty('--t',temperature??0);gauge.style.setProperty('--gauge',color);$('dlvTemperature').textContent=temperature==null?'—':fmt(temperature,1)+'℃';$('dlvState').textContent=last.state;
+    $('dlvExplanation').innerHTML=(last.explanation||[]).map(x=>`<p>${x}</p>`).join('')||'<p>必要数据不完整，暂不生成估值解释。</p>';
+    $('dlvMeta').textContent=`最新数据：${last.date} · 百分位区间：${last.window_start||'—'} 至 ${last.window_end||'—'} · ${last.sample_count||0} 个样本${payload.is_today?'':' · 数据尚未更新，当前显示上一交易日数据。'}`;
+    const missing=last.missing||[],banner=$('dlvMissing');banner.classList.toggle('show',missing.length>0);banner.textContent=missing.length?`数据不完整，暂不生成估值温度。缺失：${missing.join('、')}`:'';
+    $('dlvDividend').textContent=fmt(last.dividend_yield,2)+'%';$('dlvDividendDetail').textContent=`历史分位 ${fmt(last.dividend_yield_percentile,1)}% · 估值温度 ${fmt(last.dividend_temperature,1)}`;$('dlvDividendBar').style.width=Math.max(0,Math.min(100,last.dividend_yield_percentile||0))+'%';$('dlvDividendStats').innerHTML=statsMarkup(payload.statistics?.dividend_yield,2);
+    $('dlvSpread').textContent=fmt(last.spread,2)+'%';$('dlvSpreadDetail').textContent=`红利股息率 ${fmt(last.dividend_yield,2)}% · 中国10Y ${fmt(last.cn10y,3)}% · 温度 ${fmt(last.spread_temperature,1)}`;$('dlvSpreadBar').style.width=Math.max(0,Math.min(100,last.spread_percentile||0))+'%';$('dlvSpreadModel').textContent=last.spread_model==='historical_percentile'?`当前采用历史百分位模型 · 分位 ${fmt(last.spread_percentile,1)}%`:'当前采用固定区间模型（历史有效样本满252日后自动切换）';
+    $('dlvPb').textContent=fmt(last.pb,2);$('dlvPbDetail').textContent=`历史分位 ${fmt(last.pb_percentile,1)}% · 估值温度 ${fmt(last.pb_temperature,1)} · ${last.pb_sample_count||0} 个独立快照 · 日期 ${last.pb_asof||'—'}`;$('dlvPbBar').style.width=Math.max(0,Math.min(100,last.pb_percentile||0))+'%';$('dlvPbStats').innerHTML=statsMarkup(payload.statistics?.pb,2);
+    $('dlvDividendWeight').textContent=`权重 ${fmt(weights.dividend,0)}%`;$('dlvSpreadWeight').textContent=`权重 ${fmt(weights.spread,0)}%`;$('dlvPbWeight').textContent=`权重 ${fmt(weights.pb,0)}%`;
+    $('dlvAdviceState').textContent=last.state;$('dlvAdvice').textContent=(last.pension_reference||'数据完整后生成机械参考')+'。这不是交易信号。';$('dlvFundamentalAlert').textContent=temperature!=null&&temperature<20?'当前估值进入历史极低区域，请同时检查指数主要行业盈利、分红稳定性以及是否发生系统性基本面恶化。':'';
+    const sourceFields=[['股息率',last.dividend_yield_source],['PB',`${last.pb_source||'—'}（${last.pb_asof||'日期未知'}）`],['中国10Y',last.cn10y_source],['指数价格',last.index_price_source],['缓存位置',payload.cache_file],['手动备用',`${payload.manual_json} 或 ${payload.manual_csv}`]];$('dlvSources').innerHTML=sourceFields.map(([label,value])=>`<div><b>${label}</b><br>${value||'缺失'}</div>`).join('');
+    drawTemperatureHistory(rows);status(payload.status||`红利低波已加载 ${rows.length} 个观测日`)
+  }catch(e){status(e.message,true);$('dlvMissing').classList.add('show');$('dlvMissing').textContent=e.message}
+}
+$('dlvWindow').onchange=loadDividendLowVol;$('dlvShowTemp').onchange=()=>drawTemperatureHistory(caches.dividendLowVol?.data||[]);$('dlvShowPrice').onchange=()=>drawTemperatureHistory(caches.dividendLowVol?.data||[]);
+$('dlvApplyWeights').onclick=()=>{const weights=dlvWeights();localStorage.setItem('dlvWeights',JSON.stringify(weights));loadDividendLowVol()};$('dlvResetWeights').onclick=()=>{$('dlvWeightDividend').value=45;$('dlvWeightSpread').value=35;$('dlvWeightPb').value=20;localStorage.removeItem('dlvWeights');loadDividendLowVol()};
+try{const saved=JSON.parse(localStorage.getItem('dlvWeights')||'null');if(saved){$('dlvWeightDividend').value=saved.dividend;$('dlvWeightSpread').value=saved.spread;$('dlvWeightPb').value=saved.pb}}catch(e){}
+
+async function loadOptions(){let product=$('optProduct').value,days=$('optRange').value,mode=$('optMode').value;status(`正在读取 ${names[product]}…`);try{let payload=await api(`/api/options?product=${product}&days=${days}`),rows=payload.data,last=rows.at(-1),key=mode;if(!last)throw Error('公共缓存中没有该品种数据');$('optPcr').textContent=fmt(last[key],4);$('optDate').textContent=last.date+' · '+names[product];$('optOi').textContent=integer(last[key+'_put_oi'])+' / '+integer(last[key+'_call_oi']);$('optBand').textContent=fmt(last[key+'_ma'])+' / '+fmt(last[key+'_lower'])+' / '+fmt(last[key+'_upper']);$('optFront').textContent=(last.front_month||'—')+' / '+fmt((last.front_oi_share||0)*100,1)+'%';draw('optPcrChart',rows,[{key,color:'#50a9e8',width:2.4,label:'PCR'},{key:key+'_ma',color:'#f1aa4b',label:'MA20'},{key:key+'_upper',color:'#71869a',label:'上轨'},{key:key+'_lower',color:'#71869a',label:'下轨'}],{tooltip:(row,i,allRows)=>oiTooltip(allRows,i,key)});draw('optPriceChart',rows,[{key:'close',color:'#ee6b70',width:2.2,label:'收盘'}],{price:true});status(payload.status)}catch(e){status(e.message,true)}}
+['optProduct','optMode','optRange'].forEach(id=>$(id).onchange=loadOptions);
+
+async function loadHK(){let symbol=$('hkSymbol').value,mode=$('hkMode').value,limit=+$('hkRange').value;status('正在读取港股五年缓存…');try{let payload=await api('/api/hk?symbol='+symbol),all=payload.data,rows=all.slice(-limit),last=all.at(-1),key=mode;if(!last)throw Error('港股缓存为空');$('hkPcr').textContent=fmt(last[key],4);$('hkDate').textContent=last.date+' · '+symbol;$('hkOi').textContent=integer(last[key+'_put_oi'])+' / '+integer(last[key+'_call_oi']);$('hkBand').textContent=fmt(last[key+'_ma'])+' / '+fmt(last[key+'_lower'])+' / '+fmt(last[key+'_upper']);$('hkClose').textContent=integer(last.close);$('hkFront').textContent=(last.front_month||'—')+' · 近月持仓 '+fmt(last.front_oi_share*100,1)+'%';$('hkIndexTitle').textContent=symbol==='HSI'?'恒生指数':'恒生科技指数';draw('hkPcrChart',rows,[{key,color:'#50a9e8',width:2.4,label:'PCR'},{key:key+'_ma',color:'#f1aa4b',label:'MA20'},{key:key+'_upper',color:'#71869a',label:'上轨'},{key:key+'_lower',color:'#71869a',label:'下轨'}],{tooltip:(row,i,allRows)=>oiTooltip(allRows,i,key)});draw('hkIndexChart',rows,[{key:'close',color:'#ee6b70',width:2.3,label:'指数'}],{price:true});status(`${symbol} 已加载 ${all.length} 个交易日`)}catch(e){status(e.message,true)}}
+['hkSymbol','hkMode','hkRange'].forEach(id=>$(id).onchange=loadHK);
+
+async function loadSpread(){let key=$('spreadIndex').value,limit=+$('spreadRange').value;status('正在计算股债利差…');try{let payload=await api('/api/market?index='+key),all=payload.data,rows=all.slice(-limit),last=all.at(-1);if(!last)throw Error('该指数暂无共同有效数据');$('spreadErp').textContent=fmt(last.erp,3)+'%';$('spreadDate').textContent=last.date;$('spreadIndexVal').textContent=integer(last.index);$('spreadPe').textContent='PE-TTM '+fmt(last.pe,2);$('spreadBond').textContent=fmt(last.yield10,3)+'%';$('spreadZ').textContent=last.z==null?'—':fmt(last.z,2)+'σ';$('spreadPriceTitle').textContent=indexNames[key]+'：股债利差、滚动轨道与指数';drawDual('spreadChart',rows,[{key:'erp',color:'#50a9e8',width:2.3,label:'股债利差'},{key:'mean',color:'#f1aa4b',label:'均值'},{key:'upper',color:'#71869a',label:'上轨'},{key:'lower',color:'#71869a',label:'下轨'},{key:'index',axis:'right',color:'#ee6b70',width:2.15,label:indexNames[key]}]);status(`${indexNames[key]} 已加载 ${all.length} 个共同观测日`)}catch(e){status(e.message,true)}}
+['spreadIndex','spreadRange'].forEach(id=>$(id).onchange=loadSpread);
+
+async function loadValuation(){status('正在读取月度估值…');try{let payload=await api('/api/valuation'),rows=payload.data,last=rows.at(-1);if(!last)throw Error('月度估值缓存为空');$('valPe').textContent=fmt(last.pe,2);$('valDate').textContent=last.date;$('valPct').textContent=last.percentile==null?'—':fmt(last.percentile,1)+'%';$('valClose').textContent=integer(last.close);$('valTemp').textContent=last.percentile==null?'样本积累中':last.percentile<20?'偏冷':last.percentile>80?'偏热':'中性';drawDual('valuationChart',rows,[{key:'pe',color:'#50a9e8',width:2.35,label:'中证全指 PE-TTM'},{key:'sse_close',axis:'right',color:'#ee6b70',width:2.15,label:'上证指数'}]);status(`月度估值已加载 ${rows.length} 期`)}catch(e){status(e.message,true)}}
+window.addEventListener('resize',()=>{clearTimeout(window.rt);window.rt=setTimeout(()=>{if($('options').classList.contains('active'))loadOptions();if($('hk').classList.contains('active'))loadHK();if($('spread').classList.contains('active'))loadSpread();if($('dividendLowVol').classList.contains('active'))drawTemperatureHistory(caches.dividendLowVol?.data||[]);if($('valuation').classList.contains('active'))loadValuation()},180)});
+loadOptions();loadStatus();setInterval(loadStatus,60000);
+</script>
+</body>
+</html>
+

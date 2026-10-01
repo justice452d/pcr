@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+cache/op_*.json
+cache/fu_*.json
+*.zip
+.env
