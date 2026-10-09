@@ -30,7 +30,7 @@
   <section id="options" class="view active">
     <div class="heading"><div><h2>内地期权持仓 PCR</h2><p>公共缓存统一计算全部合约与近月合约口径；布林带始终随所选口径重算。</p></div><button class="refresh" onclick="refreshData('options')">检查收盘数据</button></div>
     <div class="controls">
-      <div class="control"><label>品种</label><select id="optProduct"><option value="io">沪深300 IO</option><option value="au">沪金 AU</option><option value="ag">沪银 AG</option><option value="cu">沪铜 CU</option><option value="sc">原油 SC</option></select></div>
+      <div class="control"><label>品种</label><select id="optProduct"><option value="io">沪深300 IO</option><option value="ho">上证50 HO</option><option value="au">沪金 AU</option><option value="ag">沪银 AG</option><option value="cu">沪铜 CU</option><option value="sc">原油 SC</option></select></div>
       <div class="control"><label>PCR 口径</label><select id="optMode"><option value="all">裸 PCR · 全部合约</option><option value="front">近月 PCR</option></select></div>
       <div class="control"><label>显示范围</label><select id="optRange"><option value="60">60 个交易日</option><option value="120">120 个交易日</option><option value="260" selected>260 个交易日</option><option value="520">520 个交易日</option></select></div>
       <div class="hint">蓝线为 OI-PCR，黄线为 20 日均值，灰线为 ±2σ。右图为代表期货合约收盘价。</div>
@@ -98,7 +98,7 @@
 <div id="tip" class="tip"></div>
 <script>
 const $=id=>document.getElementById(id), fmt=(v,n=3)=>v==null||!isFinite(+v)?'—':Number(v).toFixed(n), integer=v=>v==null?'—':Math.round(v).toLocaleString('zh-CN');
-const names={io:'沪深300 IO',au:'沪金 AU',ag:'沪银 AG',cu:'沪铜 CU',sc:'原油 SC'}, indexNames={sse:'上证指数',csi:'中证全指',china50:'CHINA50 · 上证50估值口径'};
+const names={io:'沪深300 IO',ho:'上证50 HO',au:'沪金 AU',ag:'沪银 AG',cu:'沪铜 CU',sc:'原油 SC'}, indexNames={sse:'上证指数',csi:'中证全指',china50:'CHINA50 · 上证50估值口径'};
 let caches={};
 document.querySelectorAll('.nav button').forEach(button=>button.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x===button));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===button.dataset.view));if(button.dataset.view==='hk')loadHK();if(button.dataset.view==='spread')loadSpread();if(button.dataset.view==='dividendLowVol')loadDividendLowVol();if(button.dataset.view==='valuation')loadValuation()});
 async function api(url){const response=await fetch(url);const payload=await response.json();if(!response.ok)throw Error(payload.error||'请求失败');return payload}
