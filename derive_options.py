@@ -129,7 +129,9 @@ def pick(row, *keys):
     return None
 
 
-def parse_io_csv(day: str, raw: bytes):
+def parse_cffex_csv(day: str, raw: bytes, option_code: str, future_code: str):
+    option_code = option_code.upper()
+    future_code = future_code.upper()
     reader = csv.DictReader(io.StringIO(decode_csv(raw)))
     groups = {}
     future = []
@@ -139,12 +141,12 @@ def parse_io_csv(day: str, raw: bytes):
                for key, value in raw_row.items()}
         symbol = str(pick(row, "合约代码", "合约", "instrumentId") or "").replace(" ", "").upper()
         oi = number(pick(row, "持仓量", "空盘量"))
-        match = re.match(r"^IO(\d{4})[-_]?([CP])[-_]", symbol)
+        match = re.match(rf"^{re.escape(option_code)}(\d{{4}})[-_]?([CP])[-_]", symbol)
         if match and oi is not None:
             month, side = match.groups()
             bucket = groups.setdefault(month, {"put": 0.0, "call": 0.0})
             bucket["put" if side == "P" else "call"] += oi
-        elif re.fullmatch(r"IF\d{4}", symbol):
+        elif re.fullmatch(rf"{re.escape(future_code)}\d{{4}}", symbol):
             close = number(pick(row, "今收盘", "收盘价", "收盘"))
             if oi is not None and close is not None:
                 future.append((oi, close, symbol))
@@ -163,7 +165,7 @@ def parse_io_csv(day: str, raw: bytes):
         "front": front["put"] / front["call"],
         "front_put_oi": round(front["put"]),
         "front_call_oi": round(front["call"]),
-        "front_month": "IO" + front_month,
+        "front_month": option_code + front_month,
         "front_oi_share": (front["put"] + front["call"]) / (put + call),
     }
     if future:
@@ -172,7 +174,16 @@ def parse_io_csv(day: str, raw: bytes):
     return out
 
 
-def scan_io(existing_dates):
+def parse_io_csv(day: str, raw: bytes):
+    """Backward-compatible IO parser used by older tests and scripts."""
+    return parse_cffex_csv(day, raw, "IO", "IF")
+
+
+def parse_ho_csv(day: str, raw: bytes):
+    return parse_cffex_csv(day, raw, "HO", "IH")
+
+
+def scan_cffex(existing_dates, option_code: str, future_code: str):
     rows = []
     cffex = CACHE / "cffex"
     for path in sorted(cffex.glob("20????.zip")):
@@ -182,7 +193,7 @@ def scan_io(existing_dates):
                     match = re.search(r"(20\d{6})_1\.csv$", name)
                     if not match or match.group(1) in existing_dates:
                         continue
-                    row = parse_io_csv(match.group(1), archive.read(name))
+                    row = parse_cffex_csv(match.group(1), archive.read(name), option_code, future_code)
                     if row:
                         rows.append(row)
         except (OSError, ValueError, zipfile.BadZipFile):
@@ -208,7 +219,7 @@ def add_bands(rows):
 def build(force=False):
     """Incrementally process only cache files not already in the compact archive."""
     with LOCK:
-        data = {key: [] for key in ("io", *PRODUCTS)}
+        data = {key: [] for key in ("io", "ho", *PRODUCTS)}
         if OUTPUT.exists() and not force:
             try:
                 cached = read_json(OUTPUT)
@@ -217,7 +228,7 @@ def build(force=False):
             except (OSError, ValueError):
                 pass
         known = {key: {row["date"] for row in rows} for key, rows in data.items()}
-        known_shfe_days = set.intersection(*(dates for key, dates in known.items() if key != "io")) if any(data[key] for key in PRODUCTS) else set()
+        known_shfe_days = set.intersection(*(known[key] for key in PRODUCTS)) if any(data[key] for key in PRODUCTS) else set()
         for path in sorted(CACHE.glob("op_20??????.json")):
             iso = datetime.strptime(path.stem.split("_", 1)[1], "%Y%m%d").date().isoformat()
             if iso in known_shfe_days:
@@ -230,7 +241,8 @@ def build(force=False):
                 if row["date"] not in known[key]:
                     data[key].append(row)
                     known[key].add(row["date"])
-        data["io"].extend(scan_io({date.replace("-", "") for date in known["io"]}))
+        data["io"].extend(scan_cffex({date.replace("-", "") for date in known["io"]}, "IO", "IF"))
+        data["ho"].extend(scan_cffex({date.replace("-", "") for date in known["ho"]}, "HO", "IH"))
         for rows in data.values():
             unique = {row["date"]: row for row in rows}
             rows[:] = list(unique.values())
